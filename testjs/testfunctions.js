@@ -25,7 +25,7 @@ var decreaseAperture = false;
 var focusDistance = 132.0;
 var increaseFocusDist = false;
 var decreaseFocusDist = false;
-var pixelRatio = 0.5;
+var pixelRatio = 1;//原0.5现1
 var windowIsBeingResized = false;
 var TWO_PI = Math.PI * 2;
 var randomVector = new THREE.Vector3();
@@ -76,24 +76,6 @@ cameraInfoElement.style.MozUserSelect = "none";
 var mouseControl = true;
 var fileLoader = new THREE.FileLoader();
 
-
-
-function onMouseWheel(event) {
-
-        //event.preventDefault();
-        event.stopPropagation();
-
-        if (event.deltaY > 0) {
-
-                increaseFOV = true;
-
-        } else if (event.deltaY < 0) {
-
-                decreaseFOV = true;
-
-        }
-
-}
 
 
 function onWindowResize(event) {
@@ -178,89 +160,6 @@ function onWindowResize(event) {
 
 
 
-function init() {
-
-        window.addEventListener('resize', onWindowResize, false);
-
-        if ('ontouchstart' in window) {
-                mouseControl = false;
-
-                mobileJoystickControls = new MobileJoystickControls({
-                        //showJoystick: true,
-                        enableMultiTouch: true
-                });
-        }
-
-        // if on mobile device, unpause the app because there is no ESC key and no mouse capture to do
-        if (!mouseControl)
-                isPaused = false;
-
-        if (mouseControl) {
-
-                window.addEventListener('wheel', onMouseWheel, false);
-
-                document.body.addEventListener("click", function () {
-                        this.requestPointerLock = this.requestPointerLock || this.mozRequestPointerLock;
-                        this.requestPointerLock();
-                }, false);
-
-                window.addEventListener("click", function (event) {
-                        event.preventDefault();
-                }, false);
-                window.addEventListener("dblclick", function (event) {
-                        event.preventDefault();
-                }, false);
-
-
-                var pointerlockChange = function (event) {
-
-                        if (document.pointerLockElement === document.body ||
-                                document.mozPointerLockElement === document.body || document.webkitPointerLockElement === document.body) {
-
-                                isPaused = false;
-
-                        } else {
-
-                                isPaused = true;
-
-                        }
-
-                };
-
-                // Hook pointer lock state change events
-                document.addEventListener('pointerlockchange', pointerlockChange, false);
-                document.addEventListener('mozpointerlockchange', pointerlockChange, false);
-                document.addEventListener('webkitpointerlockchange', pointerlockChange, false);
-
-        }
-
-        /*
-        // Fullscreen API
-        document.addEventListener("click", function() {
-        	
-        	if ( !document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement ) {
-
-        		if (document.documentElement.requestFullscreen) {
-        			document.documentElement.requestFullscreen();
-        			
-        		} else if (document.documentElement.mozRequestFullScreen) {
-        			document.documentElement.mozRequestFullScreen();
-        		
-        		} else if (document.documentElement.webkitRequestFullscreen) {
-        			document.documentElement.webkitRequestFullscreen();
-        		
-        		}
-
-        	}
-        });
-        */
-
-        initTHREEjs(); // boilerplate: init necessary three.js items and scene/demo-specific objects
-
-} // end function init()
-
-
-
 function initTHREEjs() {
 
         canvas = document.createElement('canvas');
@@ -309,7 +208,7 @@ function initTHREEjs() {
         worldCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
         pathTracingScene.add(worldCamera);
 
-        controls = new FirstPersonCameraControls(worldCamera);
+        controls = new CameraControls(worldCamera);
 
         cameraControlsObject = controls.getObject();
         cameraControlsYawObject = controls.getYawObject();

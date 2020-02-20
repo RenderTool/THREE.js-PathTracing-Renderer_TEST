@@ -42,8 +42,8 @@ function init_GUI() {
 
         HDRI_ExposureController = {
                 HDRI_Exposure: 1.5
-	};
-	material_TypeController = {
+        };
+        material_TypeController = {
                 Material_Type: 3
         };
         material_ColorController = {
@@ -54,8 +54,8 @@ function init_GUI() {
         };
         function HDRI_ExposureChanger() {
                 changeHDRI_Exposure = true;
-	}
-	function materialTypeChanger() {
+        }
+        function materialTypeChanger() {
                 changeMaterialType = true;
         }
         function materialColorChanger() {
@@ -64,35 +64,35 @@ function init_GUI() {
         function materialRoughnessChanger() {
                 changeMaterialRoughness = true;
         }
-        
+
 
         gui = new dat.GUI();
-        
-	gui.add( HDRI_ExposureController, 'HDRI_Exposure', 0, 3, 0.05 ).onChange( HDRI_ExposureChanger );
-	gui.add( material_TypeController, 'Material_Type', 2, 4, 1 ).onChange( materialTypeChanger );
+
+        gui.add( HDRI_ExposureController, 'HDRI_Exposure', 0, 3, 0.05 ).onChange( HDRI_ExposureChanger );
+        gui.add( material_TypeController, 'Material_Type', 2, 4, 1 ).onChange( materialTypeChanger );
         gui.addColor( material_ColorController, 'Material_Color' ).onChange( materialColorChanger );
         gui.add( material_RoughnessController, 'Material_Roughness', 0.0, 1.0, 0.01 ).onChange( materialRoughnessChanger );
 
         gui.add(this, 'pixelRatio', 0.25, 1).step(0.01).onChange(function (value) {
                 renderer.setPixelRatio(value);
-        
+
                 pathTracingUniforms.uResolution.value.x = context.drawingBufferWidth;
                 pathTracingUniforms.uResolution.value.y = context.drawingBufferHeight;
-        
+
                 pathTracingRenderTarget.setSize(context.drawingBufferWidth, context.drawingBufferHeight);
                 screenTextureRenderTarget.setSize(context.drawingBufferWidth, context.drawingBufferHeight);
-        
+
                 forceUpdate = true;
-            });
-	HDRI_ExposureChanger();
-	materialTypeChanger();
+        });
+        HDRI_ExposureChanger();
+        materialTypeChanger();
         materialColorChanger();
         materialRoughnessChanger();
 
         gui.domElement.style.webkitUserSelect = "none";
         gui.domElement.style.MozUserSelect = "none";
-        
-        init();
+
+        initTHREEjs();
 
 } // end function init_GUI()
 
@@ -116,13 +116,13 @@ function load_GLTF_Model() {
         //gltfLoader.load("models/scene.gltf", function( meshGroup ) { // Triangles: 30,338
         gltfLoader.load("models/StanfordDragon.glb", function( meshGroup ) { // Triangles: 100,000
 
-                if (meshGroup.scene) 
+                if (meshGroup.scene)
                         meshGroup = meshGroup.scene;
 
                 meshGroup.traverse( function ( child ) {
 
                         if ( child.isMesh ) {
-                                
+
                                 let mat = new MaterialObject();
                                 mat.type = 1;
                                 mat.albedoTextureID = -1;
@@ -142,29 +142,29 @@ function load_GLTF_Model() {
                 for (let i = 1; i < triangleMaterialMarkers.length; i++) {
                         triangleMaterialMarkers[i] += triangleMaterialMarkers[i-1];
                 }
-                
+
                 for (let i = 0; i < meshList.length; i++) {
                         geoList.push(meshList[i].geometry);
                 }
-                
+
                 if (modelMesh.geometry.index)
                         modelMesh.geometry = modelMesh.geometry.toNonIndexed();
-                
-                        
+
+
                 for (let i = 0; i < meshList.length; i++) {
                         if (meshList[i].material.map != undefined)
-                                uniqueMaterialTextures.push(meshList[i].material.map);		
+                                uniqueMaterialTextures.push(meshList[i].material.map);
                 }
-                
+
                 for (let i = 0; i < uniqueMaterialTextures.length; i++) {
                         for (let j = i + 1; j < uniqueMaterialTextures.length; j++) {
                                 if (uniqueMaterialTextures[i].image.src == uniqueMaterialTextures[j].image.src) {
                                         uniqueMaterialTextures.splice(j, 1);
                                         j -= 1;
                                 }
-                        }	
+                        }
                 }
-                
+
                 for (let i = 0; i < meshList.length; i++) {
                         if (meshList[i].material.map != undefined) {
                                 for (let j = 0; j < uniqueMaterialTextures.length; j++) {
@@ -172,7 +172,7 @@ function load_GLTF_Model() {
                                                 pathTracingMaterialList[i].albedoTextureID = j;
                                         }
                                 }
-                        }				
+                        }
                 }
 
                 // ********* different GLTF Model Settings **********
@@ -182,13 +182,13 @@ function load_GLTF_Model() {
                 //modelPositionOffset.set(0, 20, -30);
 
                 // settings for StanfordBunny model
-		//modelScale = 0.04;
+                //modelScale = 0.04;
                 //modelPositionOffset.set(0, 28, -40);
-                
+
                 // settings for StanfordDragon model
-		modelScale = 2.0;
-		modelPositionOffset.set(0, 18.2, -40);
-                
+                modelScale = 2.0;
+                modelPositionOffset.set(0, 18.2, -40);
+
                 // now that the models have been loaded, we can init (with GUI for this demo)
                 init_GUI();
 
@@ -216,7 +216,7 @@ function initSceneData() {
         cameraControlsObject.position.set(0, 30, 40);
         // look slightly downward
         //cameraControlsPitchObject.rotation.x = -0.2;
-        
+
         total_number_of_triangles = modelMesh.geometry.attributes.position.array.length / 9;
         console.log("Triangle count:" + total_number_of_triangles);
 
@@ -224,15 +224,15 @@ function initSceneData() {
 
         triangle_array = new Float32Array(2048 * 2048 * 4);
         // 2048 = width of texture, 2048 = height of texture, 4 = r,g,b, and a components
-        
+
         aabb_array = new Float32Array(2048 * 2048 * 4);
         // 2048 = width of texture, 2048 = height of texture, 4 = r,g,b, and a components
 
-        
+
         var triangle_b_box_min = new THREE.Vector3();
         var triangle_b_box_max = new THREE.Vector3();
         var triangle_b_box_centroid = new THREE.Vector3();
-        
+
 
         var vpa = new Float32Array(modelMesh.geometry.attributes.position.array);
         var vna = new Float32Array(modelMesh.geometry.attributes.normal.array);
@@ -242,11 +242,11 @@ function initSceneData() {
                 vta = new Float32Array(modelMesh.geometry.attributes.uv.array);
                 modelHasUVs = true;
         }
-                
+
         var materialNumber = 0;
 
         for (let i = 0; i < total_number_of_triangles; i++) {
-        
+
                 triangle_b_box_min.set(Infinity, Infinity, Infinity);
                 triangle_b_box_max.set(-Infinity, -Infinity, -Infinity);
 
@@ -268,12 +268,12 @@ function initSceneData() {
                         vt1.set( -1, -1 );
                         vt2.set( -1, -1 );
                 }
-                
+
                 // record vertex normals
                 vn0.set( vna[9 * i + 0], vna[9 * i + 1], vna[9 * i + 2] ).normalize();
                 vn1.set( vna[9 * i + 3], vna[9 * i + 4], vna[9 * i + 5] ).normalize();
                 vn2.set( vna[9 * i + 6], vna[9 * i + 7], vna[9 * i + 8] ).normalize();
-                
+
                 // record vertex positions
                 vp0.set( vpa[9 * i + 0], vpa[9 * i + 1], vpa[9 * i + 2] );
                 vp1.set( vpa[9 * i + 3], vpa[9 * i + 4], vpa[9 * i + 5] );
@@ -345,8 +345,8 @@ function initSceneData() {
                 triangle_b_box_max.copy(triangle_b_box_max.max(vp2));
 
                 triangle_b_box_centroid.set((triangle_b_box_min.x + triangle_b_box_max.x) * 0.5,
-                                            (triangle_b_box_min.y + triangle_b_box_max.y) * 0.5,
-                                            (triangle_b_box_min.z + triangle_b_box_max.z) * 0.5);
+                    (triangle_b_box_min.y + triangle_b_box_max.y) * 0.5,
+                    (triangle_b_box_min.z + triangle_b_box_max.z) * 0.5);
 
                 aabb_array[9 * i + 0] = triangle_b_box_min.x;
                 aabb_array[9 * i + 1] = triangle_b_box_min.y;
@@ -386,34 +386,34 @@ function initSceneData() {
         }
 
         triangleDataTexture = new THREE.DataTexture(triangle_array,
-                2048,
-                2048,
-                THREE.RGBAFormat,
-                THREE.FloatType,
-                THREE.Texture.DEFAULT_MAPPING,
-                THREE.ClampToEdgeWrapping,
-                THREE.ClampToEdgeWrapping,
-                THREE.NearestFilter,
-                THREE.NearestFilter,
-                1,
-                THREE.LinearEncoding);
+            2048,
+            2048,
+            THREE.RGBAFormat,
+            THREE.FloatType,
+            THREE.Texture.DEFAULT_MAPPING,
+            THREE.ClampToEdgeWrapping,
+            THREE.ClampToEdgeWrapping,
+            THREE.NearestFilter,
+            THREE.NearestFilter,
+            1,
+            THREE.LinearEncoding);
 
         triangleDataTexture.flipY = false;
         triangleDataTexture.generateMipmaps = false;
         triangleDataTexture.needsUpdate = true;
 
         aabbDataTexture = new THREE.DataTexture(aabb_array,
-                2048,
-                2048,
-                THREE.RGBAFormat,
-                THREE.FloatType,
-                THREE.Texture.DEFAULT_MAPPING,
-                THREE.ClampToEdgeWrapping,
-                THREE.ClampToEdgeWrapping,
-                THREE.NearestFilter,
-                THREE.NearestFilter,
-                1,
-                THREE.LinearEncoding);
+            2048,
+            2048,
+            THREE.RGBAFormat,
+            THREE.FloatType,
+            THREE.Texture.DEFAULT_MAPPING,
+            THREE.ClampToEdgeWrapping,
+            THREE.ClampToEdgeWrapping,
+            THREE.NearestFilter,
+            THREE.NearestFilter,
+            1,
+            THREE.LinearEncoding);
 
         aabbDataTexture.flipY = false;
         aabbDataTexture.generateMipmaps = false;
@@ -421,8 +421,8 @@ function initSceneData() {
 
         hdrLoader = new THREE.RGBELoader();
 
-	hdrPath = 'textures/symmetrical_garden_2k.hdr';
-	//hdrPath = 'textures/cloud_layers_2k.hdr';
+        hdrPath = 'textures/symmetrical_garden_2k.hdr';
+        //hdrPath = 'textures/cloud_layers_2k.hdr';
         //hdrPath = 'textures/delta_2_2k.hdr';
         //hdrPath = 'textures/kiara_5_noon_2k.hdr';
         //hdrPath = 'textures/noon_grass_2k.hdr';
@@ -440,7 +440,7 @@ function initSceneData() {
 
 // called automatically from within initTHREEjs() function
 function initPathTracingShaders() {
- 
+
         // scene/demo-specific uniforms go here
         pathTracingUniforms = {
 
@@ -451,7 +451,7 @@ function initPathTracingShaders() {
 
                 uCameraIsMoving: { type: "b1", value: false },
 
-		uMaterialType: { type: "i", value: 0 },
+                uMaterialType: { type: "i", value: 0 },
 
                 uEPS_intersect: { type: "f", value: EPS_intersect },
                 uTime: { type: "f", value: 0.0 },
@@ -470,11 +470,11 @@ function initPathTracingShaders() {
                 uRandomVector: { type: "v3", value: new THREE.Vector3() },
 
                 uCameraMatrix: {type: "m4", value: new THREE.Matrix4() }
-        
+
         };
 
         pathTracingDefines = {
-        	//NUMBER_OF_TRIANGLES: total_number_of_triangles
+                //NUMBER_OF_TRIANGLES: total_number_of_triangles
         };
 
         // load vertex and fragment shader files that are used in the pathTracing material, mesh and scene
@@ -491,7 +491,7 @@ function initPathTracingShaders() {
 function createPathTracingMaterial() {
 
         fileLoader.load('shaders/HDRI_Environment_Fragment.glsl', function (shaderText) {
-                
+
                 pathTracingFragmentShader = shaderText;
 
                 pathTracingMaterial = new THREE.ShaderMaterial({
@@ -510,7 +510,7 @@ function createPathTracingMaterial() {
                 //   of the camera at all times. This is necessary because without it, the scene 
                 //   quad will fall out of view and get clipped when the camera rotates past 180 degrees.
                 worldCamera.add(pathTracingMesh);
-                
+
         });
 
 } // end function createPathTracingMaterial()
@@ -519,24 +519,24 @@ function createPathTracingMaterial() {
 
 // called automatically from within the animate() function
 function updateVariablesAndUniforms() {
-        
+
         if (changeHDRI_Exposure) {
                 renderer.toneMappingExposure = HDRI_ExposureController.HDRI_Exposure;
                 pathTracingUniforms.uHDRI_Exposure.value = HDRI_ExposureController.HDRI_Exposure;
                 cameraIsMoving = true;
                 changeHDRI_Exposure = false;
-	}
-	
-	if (changeMaterialType) {
+        }
+
+        if (changeMaterialType) {
                 pathTracingUniforms.uMaterialType.value = material_TypeController.Material_Type;
                 cameraIsMoving = true;
                 changeMaterialType = false;
         }
 
         if (changeMaterialColor) {
-                pathTracingUniforms.uMaterialColor.value.setRGB( material_ColorController.Material_Color[0] / 255, 
-                                                                 material_ColorController.Material_Color[1] / 255, 
-                                                                 material_ColorController.Material_Color[2] / 255 );
+                pathTracingUniforms.uMaterialColor.value.setRGB( material_ColorController.Material_Color[0] / 255,
+                    material_ColorController.Material_Color[1] / 255,
+                    material_ColorController.Material_Color[2] / 255 );
                 cameraIsMoving = true;
                 changeMaterialColor = false;
         }
@@ -549,17 +549,17 @@ function updateVariablesAndUniforms() {
         if (forceUpdate) {
                 cameraIsMoving = true;
                 forceUpdate = false;
-            }
+        }
 
         if ( !cameraIsMoving ) {
-                
+
                 if (sceneIsDynamic)
                         sampleCounter = 1.0; // reset for continuous updating of image
                 else sampleCounter += 1.0; // for progressive refinement of image
-                
+
                 frameCounter += 1.0;
 
-                cameraRecentlyMoving = false;  
+                cameraRecentlyMoving = false;
         }
 
         if (cameraIsMoving) {
@@ -572,19 +572,19 @@ function updateVariablesAndUniforms() {
                 }
         }
 
-        
+
         pathTracingUniforms.uCameraIsMoving.value = cameraIsMoving;
         pathTracingUniforms.uSampleCounter.value = sampleCounter;
         pathTracingUniforms.uFrameCounter.value = frameCounter;
         pathTracingUniforms.uRandomVector.value = randomVector.set(Math.random(), Math.random(), Math.random());
-        
+
         // CAMERA
         cameraControlsObject.updateMatrixWorld(true);
         pathTracingUniforms.uCameraMatrix.value.copy(worldCamera.matrixWorld);
         screenOutputMaterial.uniforms.uOneOverSampleCounter.value = 1.0 / sampleCounter;
-        
+
         cameraInfoElement.innerHTML = "FOV: " + worldCamera.fov + " / Aperture: " + apertureSize.toFixed(2) +
-                " / FocusDistance: " + focusDistance + "<br>" + "Samples: " + sampleCounter;
+            " / FocusDistance: " + focusDistance + "<br>" + "Samples: " + sampleCounter;
 
 } // end function updateUniforms()
 
