@@ -2,6 +2,7 @@
 var EPS_intersect;
 var sceneIsDynamic = false;
 var camFlightSpeed = 60;
+var forceUpdate = false;
 var hdrPath, hdrTexture, hdrLoader;
 var modelMesh;
 var modelScale = 1.0;
@@ -63,6 +64,7 @@ function init_GUI() {
         function materialRoughnessChanger() {
                 changeMaterialRoughness = true;
         }
+        
 
         gui = new dat.GUI();
         
@@ -71,6 +73,17 @@ function init_GUI() {
         gui.addColor( material_ColorController, 'Material_Color' ).onChange( materialColorChanger );
         gui.add( material_RoughnessController, 'Material_Roughness', 0.0, 1.0, 0.01 ).onChange( materialRoughnessChanger );
 
+        gui.add(this, 'pixelRatio', 0.25, 1).step(0.01).onChange(function (value) {
+                renderer.setPixelRatio(value);
+        
+                pathTracingUniforms.uResolution.value.x = context.drawingBufferWidth;
+                pathTracingUniforms.uResolution.value.y = context.drawingBufferHeight;
+        
+                pathTracingRenderTarget.setSize(context.drawingBufferWidth, context.drawingBufferHeight);
+                screenTextureRenderTarget.setSize(context.drawingBufferWidth, context.drawingBufferHeight);
+        
+                forceUpdate = true;
+            });
 	HDRI_ExposureChanger();
 	materialTypeChanger();
         materialColorChanger();
@@ -79,68 +92,7 @@ function init_GUI() {
         gui.domElement.style.webkitUserSelect = "none";
         gui.domElement.style.MozUserSelect = "none";
         
-        window.addEventListener('resize', onWindowResize, false);
-
-        if ( 'ontouchstart' in window ) {
-                mouseControl = false;
-                // if on mobile device, unpause the app because there is no ESC key and no mouse capture to do
-                isPaused = false;
-                pixelRatio = 0.5;
-                ableToEngagePointerLock = true;
-
-                mobileJoystickControls = new MobileJoystickControls ({
-                        //showJoystick: true,
-                        guiDomElement: gui.domElement,
-                        enableMultiTouch: true
-                });	
-        }
-
-        if (mouseControl) {
-
-                window.addEventListener( 'wheel', onMouseWheel, false );
-
-                window.addEventListener("click", function(event) {
-                        event.preventDefault();	
-                }, false);
-                window.addEventListener("dblclick", function(event) {
-                        event.preventDefault();	
-                }, false);
-                
-                document.body.addEventListener("click", function(event) {
-                        if (!ableToEngagePointerLock)
-                                return;
-                        this.requestPointerLock = this.requestPointerLock || this.mozRequestPointerLock;
-                        this.requestPointerLock();
-                }, false);
-
-
-                var pointerlockChange = function ( event ) {
-                        if ( document.pointerLockElement === document.body || 
-                            document.mozPointerLockElement === document.body || document.webkitPointerLockElement === document.body ) {
-
-                                isPaused = false;
-                        } else {
-                                isPaused = true;
-                        }
-                };
-
-                // Hook pointer lock state change events
-                document.addEventListener( 'pointerlockchange', pointerlockChange, false );
-                document.addEventListener( 'mozpointerlockchange', pointerlockChange, false );
-                document.addEventListener( 'webkitpointerlockchange', pointerlockChange, false );
-
-        }
-
-        if (mouseControl) {
-                gui.domElement.addEventListener("mouseenter", function(event) {
-                                ableToEngagePointerLock = false;	
-                }, false);
-                gui.domElement.addEventListener("mouseleave", function(event) {
-                                ableToEngagePointerLock = true;
-                }, false);
-        }
-
-        initTHREEjs(); // boilerplate: init necessary three.js items and scene/demo-specific objects
+        init();
 
 } // end function init_GUI()
 
@@ -254,9 +206,11 @@ function initSceneData() {
         // scene/demo-specific three.js objects setup goes here
         EPS_intersect = mouseControl ? 0.01 : 1.0; // less precision on mobile
 
-        // set camera's field of view
+        // set camera's field of view/pixel
+
         worldCamera.fov = 60;
         focusDistance = 80.0;
+
 
         // position and orient camera
         cameraControlsObject.position.set(0, 30, 40);
@@ -592,6 +546,10 @@ function updateVariablesAndUniforms() {
                 cameraIsMoving = true;
                 changeMaterialRoughness = false;
         }
+        if (forceUpdate) {
+                cameraIsMoving = true;
+                forceUpdate = false;
+            }
 
         if ( !cameraIsMoving ) {
                 
