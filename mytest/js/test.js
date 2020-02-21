@@ -1,3 +1,7 @@
+/**
+ * originally from https://github.com/erichlof
+ * @author Erich Loftis (erichlof on GitHub)
+ */
 // scene/demo-specific variables go here
 var EPS_intersect;
 var sceneIsDynamic = false;
@@ -113,7 +117,7 @@ function load_GLTF_Model() {
 
         var gltfLoader = new THREE.GLTFLoader();
 
-        gltfLoader.load("mytest/mesh/scene.glb", function( meshGroup ) {
+        gltfLoader.load("mytest/content/mesh/scene.glb", function( meshGroup ) {
         //gltfLoader.load("models/StanfordDragon.glb", function( meshGroup ) { // Triangles: 100,000
 
                 if (meshGroup.scene)

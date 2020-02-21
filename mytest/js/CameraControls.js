@@ -1,3 +1,13 @@
+/**
+ * originally from https://github.com/mrdoob/three.js/blob/dev/examples/js/controls/PointerLockControls.js
+ * @author mrdoob / http://mrdoob.com/
+ *
+ * edited by Erich Loftis (erichlof on GitHub)
+ * https://github.com/erichlof
+ * Btw, this is the most consice and elegant way to implement first person camera rotation/movement that I've ever seen -
+ * look at how short it is, without spaces/braces it would be around 30 lines!  Way to go, mrdoob!
+ */
+
 var CameraControls = function (camera) {
 	camera.rotation.set(0, 0, 0);
 	let pitchObject = new THREE.Object3D();

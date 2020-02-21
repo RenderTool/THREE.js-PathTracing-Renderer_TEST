@@ -1,3 +1,7 @@
+/**
+ * originally from https://github.com/erichlof
+ * @author Erich Loftis (erichlof on GitHub)
+ */
 var SCREEN_WIDTH;
 var SCREEN_HEIGHT;
 var canvas, context;
